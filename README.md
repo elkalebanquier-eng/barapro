@@ -1,4 +1,4 @@
-# BaraPro
+# DevConnect
 
 Marketplace africaine de freelances et de services numériques. Cette première version est un frontend React/Vite mobile-first, avec données de démonstration clairement signalées et des frontières d'intégration prêtes pour Firebase, ImageKit, Cloudinary et un prestataire de paiement local.
 
@@ -9,7 +9,7 @@ Marketplace africaine de freelances et de services numériques. Cette première 
 - Architecture prête à accueillir authentification, profils, projets, propositions, messages, notifications, évaluations, modération et paiements par étapes.
 - Aucun mot de passe, clé privée ou faux identifiant n'est stocké dans le dépôt.
 - Données d'interface fictives marquées « Démo ».
-- Workflow GitHub Actions pour GitHub Pages, avec base `/barapro/` sur le dépôt et configuration compatible avec un futur domaine personnalisé.
+- Workflow GitHub Actions pour GitHub Pages, avec base `/devconnect/` sur le dépôt et configuration compatible avec un futur domaine personnalisé.
 
 ## Développement local
 
@@ -61,4 +61,4 @@ Les paiements réels ne sont pas activés et aucune promesse de paiement sécuri
 
 ## GitHub Pages et domaine personnalisé
 
-Le workflow `.github/workflows/deploy-pages.yml` déploie automatiquement la branche `main` vers GitHub Pages. Pour un domaine personnalisé, configurez le domaine dans **Settings → Pages**, puis ajoutez les enregistrements DNS indiqués par GitHub. Le code ne contient aucun domaine réel ni certificat. Si le domaine est utilisé, ajustez également `VITE_APP_BASE_URL` dans l'environnement de build et vérifiez la base Vite si le site n'est plus servi sous `/barapro/`.
+Le workflow `.github/workflows/deploy-pages.yml` déploie automatiquement la branche `main` vers GitHub Pages. Pour un domaine personnalisé, configurez le domaine dans **Settings → Pages**, puis ajoutez les enregistrements DNS indiqués par GitHub. Le code ne contient aucun domaine réel ni certificat. Si le domaine est utilisé, ajustez également `VITE_APP_BASE_URL` dans l'environnement de build et vérifiez la base Vite si le site n'est plus servi sous `/devconnect/`.

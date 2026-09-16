@@ -1,5 +1,5 @@
 /**
- * Integration boundaries for BaraPro.
+ * Integration boundaries for DevConnect.
  *
  * This static prototype deliberately does not initialize third-party SDKs until
  * credentials exist. Public VITE_* values are read only at runtime; private

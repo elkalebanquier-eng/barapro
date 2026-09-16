@@ -16,7 +16,7 @@ const navItems = [
 
 function BrandMark({ inverse = false }: { inverse?: boolean }) {
   return (
-    <Link href="/" className="group flex items-center gap-2.5" aria-label="BaraPro, accueil">
+    <Link href="/" className="group flex items-center gap-2.5" aria-label="DevConnect, accueil">
       <span className={`grid h-9 w-9 place-items-center rounded-xl text-lg font-black shadow-sm transition-transform duration-200 group-hover:-rotate-6 ${inverse ? "bg-white text-[#1557f5]" : "bg-[#1557f5] text-white"}`}>B</span>
       <span className={`font-display text-[1.3rem] font-bold tracking-[-0.04em] ${inverse ? "text-white" : "text-ink"}`}>Bara<span className={inverse ? "text-[#f4a35d]" : "text-[#e4793f]"}>Pro</span></span>
     </Link>

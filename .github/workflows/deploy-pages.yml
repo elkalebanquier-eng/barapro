@@ -1,4 +1,4 @@
-name: Deploy BaraPro to GitHub Pages
+name: Deploy DevConnect to GitHub Pages
 
 on:
   push:
