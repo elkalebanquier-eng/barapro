@@ -38,6 +38,12 @@ export async function createProfile(profile: { id: string; role: "client" | "dev
   return data;
 }
 
+export async function createProject(project: { client_id: string; title: string; slug: string; description: string; category: string; budget_min: number | null; budget_max: number | null; currency: string; status: string; deadline: string | null }) {
+  if (!supabase) throw new Error("Supabase n\'est pas encore configuré.");
+  const { data, error } = await supabase.from("projects").insert(project).select("id, title, slug, status").limit(1).single();
+  if (error) throw error;
+  return data;
+}
 export async function uploadProfilePhoto(userId: string, file: File) {
   if (!supabase) throw new Error("Supabase n'est pas encore configuré.");
   const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
