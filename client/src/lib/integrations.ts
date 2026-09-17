@@ -31,9 +31,18 @@ export async function uploadImageToCloudinary(file: File, folder = "devconnect")
   return response.json() as Promise<{ secure_url: string; public_id: string; width: number; height: number }>;
 }
 
-export async function createProfile(profile: { id: string; role: "client" | "developer"; full_name: string; username?: string; avatar_url?: string }) {
+export async function createProfile(profile: { id: string; role: "client" | "developer"; full_name: string; username?: string; avatar_url?: string; bio?: string; country?: string; skills?: string[]; availability?: string }) {
   if (!supabase) throw new Error("Supabase n'est pas encore configuré.");
   const { data, error } = await supabase.from("profiles").upsert(profile).select("id, role, full_name, username, avatar_url").limit(1).single();
   if (error) throw error;
   return data;
+}
+
+export async function uploadProfilePhoto(userId: string, file: File) {
+  if (!supabase) throw new Error("Supabase n'est pas encore configuré.");
+  const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const path = `${userId}/avatar-${Date.now()}.${extension}`;
+  const { error } = await supabase.storage.from("profile-photos").upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
+  if (error) throw error;
+  return supabase.storage.from("profile-photos").getPublicUrl(path).data.publicUrl;
 }
