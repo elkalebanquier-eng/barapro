@@ -1,8 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 
 /** Public browser configuration only. Never place service_role or Cloudinary API secrets here. */
-export const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? "";
-export const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? "";
+// These are publishable browser values, safe to expose in the frontend. Private service_role keys never belong here.
+export const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? "https://liguztacbckbfkpxukpz.supabase.co";
+export const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? "sb_publishable__WiTUxno84SJFwxmbhM5gg_aDzsB66u";
 
 export const cloudinaryConfig = {
   cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME ?? "",
