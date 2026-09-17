@@ -76,7 +76,8 @@ export default function AuthPage() {
       }
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : "Une erreur est survenue.";
-      setError(message.includes("Invalid login credentials") ? "Email ou mot de passe incorrect." : message.includes("already registered") ? "Cet email est déjà utilisé. Connectez-vous plutôt." : message);
+      const normalizedMessage = message.toLowerCase();
+      setError(normalizedMessage.includes("invalid login credentials") ? "Email ou mot de passe incorrect." : normalizedMessage.includes("already registered") ? "Cet email est déjà utilisé. Connectez-vous plutôt." : normalizedMessage.includes("email rate limit exceeded") || normalizedMessage.includes("rate limit") ? "Le service email a temporairement atteint sa limite. Attendez quelques minutes avant de réessayer, ou contactez l’administrateur du site." : message);
     } finally { setLoading(false); }
   }
 
