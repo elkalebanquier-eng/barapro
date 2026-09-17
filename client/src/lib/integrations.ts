@@ -44,6 +44,12 @@ export async function createProject(project: { client_id: string; title: string;
   if (error) throw error;
   return data;
 }
+export async function createProposal(proposal: { project_id: string; developer_id: string; cover_letter: string; amount: number; delivery_days: number }) {
+  if (!supabase) throw new Error("Supabase n\'est pas encore configuré.");
+  const { data, error } = await supabase.from("proposals").insert(proposal).select("id, project_id, status, amount, delivery_days, cover_letter").limit(1).single();
+  if (error) throw error;
+  return data;
+}
 export async function uploadProfilePhoto(userId: string, file: File) {
   if (!supabase) throw new Error("Supabase n'est pas encore configuré.");
   const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
