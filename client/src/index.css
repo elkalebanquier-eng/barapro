@@ -33,7 +33,7 @@ html { scroll-behavior: smooth; }
 body { margin: 0; min-width: 320px; background: var(--surface); color: var(--ink); font-family: "DM Sans", sans-serif; -webkit-font-smoothing: antialiased; transition: background-color .2s ease, color .2s ease; }
 button, a { -webkit-tap-highlight-color: transparent; }
 button:active, a:active { transform: scale(.98); }
-::selection { background: #f4a35d; color: #131c23; }
+::selection { background: #b9f227; color: #131c23; }
 
 @layer base {
   * { @apply border-border outline-ring/50; }
