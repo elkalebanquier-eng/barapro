@@ -1,10 +1,10 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ArrowRight, Bell, BriefcaseBusiness, ChevronDown, Compass, FileText, Heart, LayoutDashboard, Menu, MessageCircle, Search, ShieldCheck, Sparkles, UserRound, X } from "lucide-react";
+import { ArrowRight, Bell, BriefcaseBusiness, ChevronDown, Compass, FileText, Heart, LayoutDashboard, Menu, MessageCircle, Moon, Search, ShieldCheck, Sparkles, Sun, UserRound, X } from "lucide-react";
 import { useState } from "react";
 import { Link, Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { ThemeProvider } from "./contexts/ThemeContext";
+import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import { BecomeDeveloperPage, ClientDashboardPage, DeveloperDashboardPage, DeveloperProfilePage, ExploreProjectsPage, FindDeveloperPage, HelpSecurityPage, ProjectDetailPage } from "./pages/MarketplacePages";
@@ -27,6 +27,7 @@ function BrandMark({ inverse = false }: { inverse?: boolean }) {
 function AppHeader() {
   const [open, setOpen] = useState(false);
   const [location] = useLocation();
+  const { resolvedTheme, toggleTheme } = useTheme();
   return (
     <header className="sticky top-0 z-50 border-b border-black/[0.06] bg-[#fbfaf7]/90 backdrop-blur-xl">
       <div className="container flex h-[72px] items-center justify-between gap-5">
@@ -37,12 +38,15 @@ function AppHeader() {
           ))}
         </nav>
         <div className="hidden items-center gap-2 sm:flex">
+          <button onClick={toggleTheme} className="grid h-10 w-10 place-items-center rounded-full border border-ink/10 text-ink/60 transition hover:bg-ink/[0.04] hover:text-ink" aria-label={`Activer le thème ${resolvedTheme === "dark" ? "clair" : "sombre"}`} title="Changer de thème">
+            {resolvedTheme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+          </button>
           <Link href="/connexion" className="rounded-full px-4 py-2.5 text-sm font-semibold text-ink/70 transition-colors hover:bg-ink/[0.04] hover:text-ink">Se connecter</Link>
           <Link href="/publier" className="inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-white shadow-[0_6px_20px_rgba(19,28,35,.12)] transition-all hover:-translate-y-0.5 hover:bg-[#26323a]">Publier un projet <ArrowRight size={15} /></Link>
         </div>
-        <button className="grid h-10 w-10 place-items-center rounded-full border border-ink/10 text-ink sm:hidden" onClick={() => setOpen(!open)} aria-label="Ouvrir le menu">
+        <div className="flex items-center gap-2 sm:hidden"><button onClick={toggleTheme} className="grid h-10 w-10 place-items-center rounded-full border border-ink/10 text-ink/60" aria-label="Changer de thème">{resolvedTheme === "dark" ? <Sun size={17} /> : <Moon size={17} />}</button><button className="grid h-10 w-10 place-items-center rounded-full border border-ink/10 text-ink" onClick={() => setOpen(!open)} aria-label="Ouvrir le menu">
           {open ? <X size={19} /> : <Menu size={19} />}
-        </button>
+        </button></div>
       </div>
       {open && <div className="border-t border-black/[0.06] bg-[#fbfaf7] px-5 py-4 sm:hidden">
         <nav className="container flex flex-col gap-1 text-sm font-semibold text-ink/70">
@@ -112,11 +116,11 @@ function SimplePage({ title, description, icon: Icon = UserRound }: { title: str
 }
 
 function Router() {
-  return <Switch><Route path="/" component={Home} /><Route path="/trouver-un-developpeur" component={() => <AppLayout><FindDeveloperPage /></AppLayout>} /><Route path="/explorer" component={() => <AppLayout><FindDeveloperPage /></AppLayout>} /><Route path="/projets" component={() => <AppLayout><ExploreProjectsPage /></AppLayout>} /><Route path="/publier" component={PublishPage} /><Route path="/projet/:slug" component={() => <AppLayout><ProjectDetailPage /></AppLayout>} /><Route path="/profil/:slug" component={() => <AppLayout><DeveloperProfilePage /></AppLayout>} /><Route path="/devenir-developpeur" component={() => <AppLayout><BecomeDeveloperPage /></AppLayout>} /><Route path="/dashboard-client" component={() => <AppLayout><ClientDashboardPage /></AppLayout>} /><Route path="/dashboard-developpeur" component={() => <AppLayout><DeveloperDashboardPage /></AppLayout>} /><Route path="/dashboard" component={DashboardPage} /><Route path="/aide" component={() => <AppLayout><HelpSecurityPage /></AppLayout>} /><Route path="/connexion" component={() => <SimplePage title="Votre espace, en toute simplicité." description="La connexion et l'inscription seront activées avec Firebase lorsque vous aurez ajouté vos variables d'environnement. Cette page est une structure de démonstration, aucun compte n'est créé pour le moment." icon={UserRound} />} /><Route path="/admin" component={() => <SimplePage title="Espace administration" description="Cette zone est réservée aux comptes administrateurs vérifiés. L'accès sera contrôlé par des règles Firebase, jamais par l'URL seule." icon={ShieldCheck} />} /><Route path="/messages" component={() => <SimplePage title="Messagerie" description="Retrouvez ici vos échanges avec les clients et freelances une fois Firebase connecté." icon={MessageCircle} />} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>;
+  return <Switch><Route path="/" component={() => <AppLayout><Home /></AppLayout>} /><Route path="/trouver-un-developpeur" component={() => <AppLayout><FindDeveloperPage /></AppLayout>} /><Route path="/explorer" component={() => <AppLayout><FindDeveloperPage /></AppLayout>} /><Route path="/projets" component={() => <AppLayout><ExploreProjectsPage /></AppLayout>} /><Route path="/publier" component={PublishPage} /><Route path="/projet/:slug" component={() => <AppLayout><ProjectDetailPage /></AppLayout>} /><Route path="/profil/:slug" component={() => <AppLayout><DeveloperProfilePage /></AppLayout>} /><Route path="/devenir-developpeur" component={() => <AppLayout><BecomeDeveloperPage /></AppLayout>} /><Route path="/dashboard-client" component={() => <AppLayout><ClientDashboardPage /></AppLayout>} /><Route path="/dashboard-developpeur" component={() => <AppLayout><DeveloperDashboardPage /></AppLayout>} /><Route path="/dashboard" component={DashboardPage} /><Route path="/aide" component={() => <AppLayout><HelpSecurityPage /></AppLayout>} /><Route path="/connexion" component={() => <SimplePage title="Votre espace, en toute simplicité." description="La connexion et l'inscription seront activées avec Firebase lorsque vous aurez ajouté vos variables d'environnement. Cette page est une structure de démonstration, aucun compte n'est créé pour le moment." icon={UserRound} />} /><Route path="/admin" component={() => <SimplePage title="Espace administration" description="Cette zone est réservée aux comptes administrateurs vérifiés. L'accès sera contrôlé par des règles Firebase, jamais par l'URL seule." icon={ShieldCheck} />} /><Route path="/messages" component={() => <SimplePage title="Messagerie" description="Retrouvez ici vos échanges avec les clients et freelances une fois Firebase connecté." icon={MessageCircle} />} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>;
 }
 
 function App() {
-  return <ErrorBoundary><ThemeProvider defaultTheme="light"><TooltipProvider><Toaster /><Router /></TooltipProvider></ThemeProvider></ErrorBoundary>;
+  return <ErrorBoundary><ThemeProvider defaultTheme="system" switchable><TooltipProvider><Toaster /><Router /></TooltipProvider></ThemeProvider></ErrorBoundary>;
 }
 
 export default App;
