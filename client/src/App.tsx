@@ -7,6 +7,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
+import { BecomeDeveloperPage, ClientDashboardPage, DeveloperDashboardPage, DeveloperProfilePage, ExploreProjectsPage, FindDeveloperPage, HelpSecurityPage, ProjectDetailPage } from "./pages/MarketplacePages";
 
 const navItems = [
   { label: "Freelances", href: "/explorer" },
@@ -18,7 +19,7 @@ function BrandMark({ inverse = false }: { inverse?: boolean }) {
   return (
     <Link href="/" className="group flex items-center gap-2.5" aria-label="DevConnect, accueil">
       <span className={`grid h-9 w-9 place-items-center rounded-xl text-lg font-black shadow-sm transition-transform duration-200 group-hover:-rotate-6 ${inverse ? "bg-white text-[#1557f5]" : "bg-[#1557f5] text-white"}`}>B</span>
-      <span className={`font-display text-[1.3rem] font-bold tracking-[-0.04em] ${inverse ? "text-white" : "text-ink"}`}>Bara<span className={inverse ? "text-[#f4a35d]" : "text-[#e4793f]"}>Pro</span></span>
+      <span className={`font-display text-[1.3rem] font-bold tracking-[-0.04em] ${inverse ? "text-white" : "text-ink"}`}>Dev<span className={inverse ? "text-[#f4a35d]" : "text-[#e4793f]"}>Connect</span></span>
     </Link>
   );
 }
@@ -111,7 +112,7 @@ function SimplePage({ title, description, icon: Icon = UserRound }: { title: str
 }
 
 function Router() {
-  return <Switch><Route path="/" component={Home} /><Route path="/explorer" component={ExplorePage} /><Route path="/projets" component={ProjectsPage} /><Route path="/publier" component={PublishPage} /><Route path="/dashboard" component={DashboardPage} /><Route path="/connexion" component={() => <SimplePage title="Votre espace, en toute simplicité." description="La connexion et l'inscription seront activées avec Firebase lorsque vous aurez ajouté vos variables d'environnement. Cette page est une structure de démonstration, aucun compte n'est créé pour le moment." icon={UserRound} />} /><Route path="/admin" component={() => <SimplePage title="Espace administration" description="Cette zone est réservée aux comptes administrateurs vérifiés. L'accès sera contrôlé par des règles Firebase, jamais par l'URL seule." icon={ShieldCheck} />} /><Route path="/messages" component={() => <SimplePage title="Messagerie" description="Retrouvez ici vos échanges avec les clients et freelances une fois Firebase connecté." icon={MessageCircle} />} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>;
+  return <Switch><Route path="/" component={Home} /><Route path="/trouver-un-developpeur" component={() => <AppLayout><FindDeveloperPage /></AppLayout>} /><Route path="/explorer" component={() => <AppLayout><FindDeveloperPage /></AppLayout>} /><Route path="/projets" component={() => <AppLayout><ExploreProjectsPage /></AppLayout>} /><Route path="/publier" component={PublishPage} /><Route path="/projet/:slug" component={() => <AppLayout><ProjectDetailPage /></AppLayout>} /><Route path="/profil/:slug" component={() => <AppLayout><DeveloperProfilePage /></AppLayout>} /><Route path="/devenir-developpeur" component={() => <AppLayout><BecomeDeveloperPage /></AppLayout>} /><Route path="/dashboard-client" component={() => <AppLayout><ClientDashboardPage /></AppLayout>} /><Route path="/dashboard-developpeur" component={() => <AppLayout><DeveloperDashboardPage /></AppLayout>} /><Route path="/dashboard" component={DashboardPage} /><Route path="/aide" component={() => <AppLayout><HelpSecurityPage /></AppLayout>} /><Route path="/connexion" component={() => <SimplePage title="Votre espace, en toute simplicité." description="La connexion et l'inscription seront activées avec Firebase lorsque vous aurez ajouté vos variables d'environnement. Cette page est une structure de démonstration, aucun compte n'est créé pour le moment." icon={UserRound} />} /><Route path="/admin" component={() => <SimplePage title="Espace administration" description="Cette zone est réservée aux comptes administrateurs vérifiés. L'accès sera contrôlé par des règles Firebase, jamais par l'URL seule." icon={ShieldCheck} />} /><Route path="/messages" component={() => <SimplePage title="Messagerie" description="Retrouvez ici vos échanges avec les clients et freelances une fois Firebase connecté." icon={MessageCircle} />} /><Route path="/404" component={NotFound} /><Route component={NotFound} /></Switch>;
 }
 
 function App() {
