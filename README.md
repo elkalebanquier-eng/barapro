@@ -1,4 +1,4 @@
-# DevConnect
+# ONE-X Dev
 
 Marketplace africaine de freelances et de services numériques. Cette première version est un frontend React/Vite mobile-first, avec données de démonstration clairement signalées et des frontières d'intégration prêtes pour Firebase, ImageKit, Cloudinary et un prestataire de paiement local.
 
