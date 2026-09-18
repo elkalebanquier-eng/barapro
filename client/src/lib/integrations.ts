@@ -1,60 +1,73 @@
-import { createClient } from "@supabase/supabase-js";
+import { auth, db, getContacts, getConversation, getDevelopers, getMyProposals, getProfile, getProjects, saveProfile, sendMessage, signInWithGoogle, signInWithPassword, signUpWithPassword, uploadMediaToCloudinary } from "./firebase";
+import { addDoc, collection, doc, getDocs, limit, query, setDoc, where } from "firebase/firestore";
 
-/** Public browser configuration only. Never place service_role or Cloudinary API secrets here. */
-// These are publishable browser values, safe to expose in the frontend. Private service_role keys never belong here.
-export const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? "https://liguztacbckbfkpxukpz.supabase.co";
-export const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? "sb_publishable__WiTUxno84SJFwxmbhM5gg_aDzsB66u";
+export { auth, db, signInWithGoogle, signInWithPassword, signUpWithPassword, uploadMediaToCloudinary };
+export const isFirebaseConfigured = true;
+export const integrationStatus = { firebase: "ready", cloudinary: "configured-by-env" } as const;
 
-export const cloudinaryConfig = {
-  cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME ?? "",
-  uploadPreset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET ?? "",
+const currentUser = () => auth.currentUser;
+const firebaseAuth = {
+  getUser: async () => ({ data: { user: currentUser() } }),
+  signUp: async ({ email, password, options }: { email: string; password: string; options?: { data?: Record<string, string> } }) => {
+    const credential = await signUpWithPassword(email, password, options?.data?.full_name ?? "");
+    return { data: { user: credential.user, session: credential.user ? { user: credential.user } : null }, error: null };
+  },
+  signInWithPassword: async ({ email, password }: { email: string; password: string }) => {
+    const credential = await signInWithPassword(email, password);
+    return { data: { user: credential.user }, error: null };
+  },
 };
 
-export const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
-export const isSupabaseConfigured = Boolean(supabase);
-export const isCloudinaryConfigured = Object.values(cloudinaryConfig).every(Boolean);
-
-export const integrationStatus = {
-  supabase: isSupabaseConfigured ? "ready" : "not-configured",
-  cloudinary: isCloudinaryConfigured ? "ready" : "not-configured",
-  payments: "not-connected",
-} as const;
-
-export async function uploadImageToCloudinary(file: File, folder = "devconnect") {
-  if (!isCloudinaryConfigured) throw new Error("Cloudinary n'est pas encore configuré.");
-  const body = new FormData();
-  body.append("file", file);
-  body.append("upload_preset", cloudinaryConfig.uploadPreset);
-  body.append("folder", folder);
-  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`, { method: "POST", body });
-  if (!response.ok) throw new Error("L'image n'a pas pu être envoyée à Cloudinary.");
-  return response.json() as Promise<{ secure_url: string; public_id: string; width: number; height: number }>;
+class QueryAdapter {
+  private filters: Array<[string, "==" | "in", unknown]> = [];
+  private max = 100;
+  private insertPayload: Record<string, unknown> | null = null;
+  private selectedFields = "";
+  private sortField = "";
+  constructor(private readonly table: string) {}
+  select(fields?: string) { this.selectedFields = fields ?? ""; return this; }
+  eq(field: string, value: unknown) { this.filters.push([field, "==", value]); return this; }
+  in(field: string, value: unknown[]) { this.filters.push([field, "in", value]); return this; }
+  limit(value: number) { this.max = value; return this; }
+  order(field: string) { this.sortField = field; return this; }
+  or() { return this; }
+  insert(payload: Record<string, unknown>) { this.insertPayload = payload; return this; }
+  async execute() {
+    if (this.insertPayload) {
+      const reference = await addDoc(collection(db, this.table), { ...this.insertPayload, created_at: new Date().toISOString() });
+      return { data: [{ id: reference.id, ...this.insertPayload }], error: null };
+    }
+    const constraints = this.filters.map(([field, operator, value]) => operator === "in" ? where(field, "in", value) : where(field, "==", value));
+    const snapshot = await getDocs(query(collection(db, this.table), ...constraints, limit(this.max)));
+    let data = snapshot.docs.map((item) => ({ id: item.id, ...item.data() })) as Record<string, unknown>[];
+    if (this.sortField) data = data.sort((a, b) => String(a[this.sortField] ?? "").localeCompare(String(b[this.sortField] ?? "")));
+    return { data, error: null };
+  }
+  then(resolve: (value: { data: Record<string, unknown>[]; error: null }) => unknown) { return this.execute().then(resolve); }
+  async single() { const result = await this.execute(); return { data: result.data[0] ?? null, error: result.data[0] ? null : new Error("Document introuvable") }; }
+  async maybeSingle() { const result = await this.execute(); return { data: result.data[0] ?? null, error: null }; }
 }
+
+export const backend: any = {
+  auth: firebaseAuth,
+  from: (table: string) => new QueryAdapter(table),
+  channel: () => ({ on: () => ({ subscribe: () => ({}) }) }),
+  removeChannel: () => undefined,
+};
 
 export async function createProfile(profile: { id: string; role: "client" | "developer"; full_name: string; username?: string; avatar_url?: string; bio?: string; country?: string; skills?: string[]; availability?: string }) {
-  if (!supabase) throw new Error("Supabase n'est pas encore configuré.");
-  const { data, error } = await supabase.from("profiles").upsert(profile).select("id, role, full_name, username, avatar_url").limit(1).single();
-  if (error) throw error;
-  return data;
+  const value = { ...profile, email: auth.currentUser?.email ?? "" };
+  await saveProfile(value);
+  return value;
 }
-
 export async function createProject(project: { client_id: string; title: string; slug: string; description: string; category: string; budget_min: number | null; budget_max: number | null; currency: string; status: string; deadline: string | null }) {
-  if (!supabase) throw new Error("Supabase n\'est pas encore configuré.");
-  const { data, error } = await supabase.from("projects").insert(project).select("id, title, slug, status").limit(1).single();
-  if (error) throw error;
-  return data;
+  const reference = await addDoc(collection(db, "projects"), { ...project, created_at: new Date().toISOString() });
+  return { id: reference.id, ...project };
 }
 export async function createProposal(proposal: { project_id: string; developer_id: string; cover_letter: string; amount: number; delivery_days: number }) {
-  if (!supabase) throw new Error("Supabase n\'est pas encore configuré.");
-  const { data, error } = await supabase.from("proposals").insert(proposal).select("id, project_id, status, amount, delivery_days, cover_letter").limit(1).single();
-  if (error) throw error;
-  return data;
+  const reference = await addDoc(collection(db, "proposals"), { ...proposal, status: "pending", created_at: new Date().toISOString() });
+  return { id: reference.id, ...proposal, status: "pending" };
 }
-export async function uploadProfilePhoto(userId: string, file: File) {
-  if (!supabase) throw new Error("Supabase n'est pas encore configuré.");
-  const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const path = `${userId}/avatar-${Date.now()}.${extension}`;
-  const { error } = await supabase.storage.from("profile-photos").upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
-  if (error) throw error;
-  return supabase.storage.from("profile-photos").getPublicUrl(path).data.publicUrl;
-}
+export async function uploadProfilePhoto(_userId: string, file: File) { return (await uploadMediaToCloudinary(file, "devconnect/profiles")).secure_url; }
+
+export { getProfile, getContacts, getConversation, getDevelopers, getProjects, getMyProposals, sendMessage };
