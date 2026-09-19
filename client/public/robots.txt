@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-# Ajoutez l’URL du sitemap après avoir connecté le domaine personnalisé.
+Sitemap: https://elkalebanquier-eng.github.io/devconnect/sitemap.xml
