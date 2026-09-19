@@ -4,30 +4,41 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function isOwner(userId) { return signedIn() && request.auth.uid == userId; }
 
-    match /profiles/{userId} {
-      allow read: if true;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
-      allow delete: if isOwner(userId);
+    // Profils utilisés par l'inscription et l'espace Profil.
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId);
+      allow delete: if false;
     }
 
+    // Missions visibles par les membres connectés et créées par leur auteur.
+    match /missions/{missionId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.authorUid == request.auth.uid;
+      allow update, delete: if signedIn() && resource.data.authorUid == request.auth.uid;
+    }
+
+    // Chat communautaire accessible aux utilisateurs authentifiés.
+    match /messages/{messageId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+
+    // Collections de l’ancien modèle conservées pour éviter une rupture de données.
+    match /profiles/{userId} {
+      allow read: if true;
+      allow create, update: if isOwner(userId);
+      allow delete: if isOwner(userId);
+    }
     match /projects/{projectId} {
       allow read: if true;
       allow create: if signedIn() && request.resource.data.client_id == request.auth.uid;
       allow update, delete: if signedIn() && resource.data.client_id == request.auth.uid;
     }
-
     match /proposals/{proposalId} {
       allow create: if signedIn() && request.resource.data.developer_id == request.auth.uid;
-      allow read: if signedIn() && (resource.data.developer_id == request.auth.uid);
-      allow update: if signedIn() && resource.data.developer_id == request.auth.uid;
-      allow delete: if false;
-    }
-
-    match /messages/{messageId} {
-      allow create: if signedIn() && request.resource.data.sender_id == request.auth.uid;
-      allow read: if signedIn() && (resource.data.sender_id == request.auth.uid || resource.data.recipient_id == request.auth.uid);
-      allow update: if signedIn() && resource.data.recipient_id == request.auth.uid;
+      allow read, update: if signedIn() && resource.data.developer_id == request.auth.uid;
       allow delete: if false;
     }
   }
